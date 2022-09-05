@@ -1,0 +1,355 @@
+%%%==============================================================================
+%% Copyright 2022 by Alceu Frigeri
+%%
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3c
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status “maintained”.
+%%
+%% The Current Maintainer of this work is Alceu Frigeri
+%%
+%% This is version 1.0beta (2022/09/01)
+%%
+%%
+%% This work consists of the files
+%%
+%% democodelisting.sty          set of macros to typeset and demonstrate LaTeX code
+%% democodetools.sty            set of macros to document LaTeX packages
+%%
+%% README.md                    quick introduction
+%%
+%% democodetools.tex            LaTeX documentation (this file)
+%% democodetools.pdf            documentation in PDF form
+%%
+%%%==============================================================================
+\makeatletter
+\def\tc@tmp@packname{democodetoolsdoc}
+\def\tc@tmp@altpackname{democodetoolsdoc}
+\def\tc@tmp@packdesc{Demo Code Tools Documentantion}
+\def\tc@tmp@packdate{2022/09/01}
+\def\tc@tmp@packversion{1.0beta}
+\let\@exp\expandafter
+\@exp\edef\csname\tc@tmp@altpackname version\endcsname{\tc@tmp@packversion}
+\makeatother
+
+\documentclass[dctools,english]{ufrgscca}
+\usepackage{democodetools}
+
+\dcTitle{The democodetools and democodelisting Packages - Version \democodetoolsversion}
+\dcAuthor{Alceu Frigeri}
+\dcDate{September 2022}
+
+\begin{document}
+
+\dcMakeTitle
+
+\begin{dcAbstract}
+This is `yet another doc/docx/doc3' package. It is designed to be `as class independent as possible', meaning: it makes no assumption about page layout (besides `having a marginpar') or underline macros. Furthermore, it's assumed that \Macro{\maketitle}{} and the \Key{abstract} environment were modified by the underline class, so alternatives (based on the article class) are provided. The main idea is to be able to document  a package/class loading it first and then this, so that it is possible not only to document the `syntax' but also to show the end result `as is' when using that other specific class/package.
+
+\end{dcAbstract}
+
+\tableofcontents
+
+\section{Introduction}
+The packages/classes doc/docx/doc3 (and for that matter doctools) where designed to be used with dtx files, which is handy for package developers, as long as one is fine with the `default article' format (which is true most of the time). This came to be from the willingness of having the `new look and feel' used in doc3, but, instead of having to rely on a standard class, being able to use any class as the base one, which allows to `demonstrate the documented commands with the final layout'.\\
+
+\Pack{democodelisting} defines a few macros to display and demonstrate \LaTeX~ code verbatim (using \Pack{listings} and \Pack{scontents}), whilst \Pack{democodetools} defines a series of macros to display/enumerate macros and environments (somewhat resembling the \Pack{doc3} style).\\
+\subsection{Current Version}
+This doc regards to \Pack{democodelisting} version \democodelistingversion~ and \Pack{democodetools} version \democodetoolsversion. Those two packages are 'usable' but they haven't been thoroughly tested, nor should  anyone consider them stable (they might be considered more or less stable but more due the 'maintainer'  lack of time than anything else. Use it at your own risk.)
+
+\section{democodelisting Package}
+
+It requires two packages: \Pack{listings} and \Pack{scontents}\\
+Defines an environment: \Env{stcode} and\\
+ 4 commands: \Macro{\DemoCode}{}, \Macro{\DisplayCode}{},  \Macro{\TabbedDisplayCode}{} and \Macro{\setdclisting}{}.
+
+\subsection{In Memory Code Storage}
+Thanks to \Pack{scontents} (\Pack{expl3} based) it's possible to store \LaTeX~ code snippets in a \Pack{expl3} key.
+
+\begin{Envs}{stcode}
+	\begin{Syntax}%
+		\Macro{\begin{stcode}}[keys]{} \Macro{\end{stcode}}{}
+	\end{Syntax}
+This environment is an alias to \Env{scontents} environment (from \Pack{scontents} package), all \Pack{scontents} keys are valid, with an additional one: \Key{st} which is an alias to the \Key{store-env} key.
+The environment body is stored verbatim in the \Key{st} named key.
+\end{Envs}
+
+\subsection{Code Display/Demo}
+\begin{Macros}{\DisplayCode,\DemoCode,\TabbedDemoCode}
+	\begin{Syntax}%
+		\Macro{\DisplayCode}[dclisting-keys]{st-name}
+		\Macro{\DemoCode}[dclisting-keys]{st-name}
+		\Macro{\TabbedDemoCode}[dclisting-keys]{st-name}
+	\end{Syntax}
+\end{Macros}
+\Macro{\DisplayCode}{} just typesets \Arg{st-name} (the key-name created with \Env{stcode}), in verbatim mode with syntax highlight.\\
+\Macro{\DemoCode}{} first typesets \Arg{st-name}, as above, then it \emph{executes} said code.
+Finally \Macro{\TabbedDemoCode}{} does the same, but typesetting it, and executed code, side by side. N.B. Both typeset  and executed code are placed inside a \Env{minipage} so that, when \emph{executing} the code, one can have, for instance, 'normal' paragraph indentation.\\
+For Example:
+
+\begin{stcode}[st=demostcode]
+	\begin{stcode}[st=stmeta]
+		Some \LaTeX~coding, for example: \ldots.
+\end{stcode}
+This will just typesets \Key{stmeta}:
+
+ \DisplayCode{stmeta}
+
+and this will demonstrate it, side by side with source code:
+
+\TabbedDemoCode[numbers=left,codeprefix={inner code},resultprefix={inner result}]{stmeta}
+\end{stcode}
+
+\DemoCode[emph={DisplayCode,TabbedDemoCode},keywd2={stcode}]{demostcode}
+
+\begin{Macros}{\setdclisting}
+	\begin{Syntax}%
+		\Macro{\setdclisting}{dclisting-keys}
+	\end{Syntax}
+Instead of setting/defining \Meta{dclisting-keys} per \Macro{\Demo}{}/\Macro{\Display}{} call, one can set those \emph{globally}, better said, \emph{in the called context group} .\\
+N.B.: All \Macro{\Display}{}/\Macro{\Demo}{} commands create a local group (\Macro{\begingroup}{}) in which the \Meta{dclisting-keys} are defined, and discarded once said local group is closed. \Macro{\setdclisting}{} defines those keys in the \emph{current} context/group (\Macro{\def}{}, \Macro{\edef}{})
+\end{Macros}
+
+\subsubsection{\Meta{dclisting-keys}}
+Using a \Key{key}\,=\Value{value} syntax, one can fine tune \Pack{listings} syntax highlight.
+\begin{Args}
+\DescribeArg{dclisting-keys}
+\begin{Syntax} %
+	\Keylst{settexcs,settexcs2,settexcs3}
+	\Keylst{texcs,texcs2,texcs3}
+	\Keylst{texcsstyle,texcs2style,texcs3style}
+\end{Syntax}Those define sets of \LaTeX~commands (csnames), the \Key{set} variants initialize/redefine those sets (an empty list, clears the set), while the others extend those sets. The \Key{style} ones redefines the command display style (an empty \Meta{par} resets the style to it's default).\\
+
+\begin{Syntax}	%
+	\Keylst{setkeywd,setkeywd2,setkeywd3}
+	\Keylst{keywd,keywd2,keywd3}
+	\Keylst{keywdstyle,keywd2style,keywd3style}
+\end{Syntax}
+Same for other \emph{keywords} sets.\\
+
+\begin{Syntax}	%
+	\Keylst{setemph,setemph2,setemph3}
+	\Keylst{emph,emph2,emph3}
+	\Keylst{emphstyle,emph2style,emph3style}
+\end{Syntax}
+for some extra emphasis sets.\\
+
+\begin{Syntax} %
+	\Keylst{numbers,numberstyle}
+\end{Syntax}
+\Key{numbers} possible values are \Value{none} (default) and \Value{left} (to add tinny numbers to the left of the listing). With \Key{numberstyle} one can redefine the numbering style.\\
+
+\begin{Syntax} %
+	\Keylst{stringstyle,commentstyle}
+\end{Syntax}
+to redefine \Key{strings} and \Key{comments} formatting style.\\
+
+\begin{Syntax} %
+	\Key{bckgndcolor}
+\end{Syntax}
+to change the listing background's color.\\
+
+\begin{Syntax} %
+	\Keylst{codeprefix,resultprefix}
+\end{Syntax}
+those set the \Key{codeprefix} (default: \LaTeX~Code:) and \Key{resultprefix} (default: \LaTeX~Result:)
+\end{Args}
+
+\section{democodetools Package}
+
+
+
+
+\subsection{Environments}
+\begin{Envs}{Macros,Envs}
+\begin{Syntax}%
+\Macro{\begin{Macros}}{macrolist}
+\Macro{\begin{Envs}}{envlist}
+\end{Syntax}
+Those are the two main environments to describe \Env{Macros} and \Env{Environments}. Both typeset \Arg{macrolist} (csv list) or \Arg{envlist} (csv list) in the margin. N.B. Each element of the list gets \Macro{\detokenize}{}
+\end{Envs}
+
+\begin{Envs}{Syntax}
+\begin{Syntax}%
+\Macro{\begin{Syntax}}{}
+\end{Syntax}
+The \Env{Syntax} environment sets the fontsize and activates \Macro{\obeylines}{}, so one can list macros/cmds/keys use, one per line.
+
+\begin{stcode}[st=demoD]
+\begin{Envs}{Macros,Envs}
+\begin{Syntax}%
+\Macro{\begin{Macros}}{macrolist}
+\Macro{\begin{Envs}}{envlist}
+\end{Syntax}
+Those are the two main ...
+\end{Envs}
+\end{stcode}
+\DisplayCode{demoD}
+
+\end{Envs}
+
+
+\begin{Envs}{Args,Keys,Values,Options}
+\begin{Syntax}%
+\Macro{\begin{Args}}{}
+\Macro{\begin{Args+}}{}
+\Macro{\begin{Keys}}{}
+\Macro{\begin{Keys+}}{}
+\Macro{\begin{Values}}{}
+\Macro{\begin{Values+}}{}
+\Macro{\begin{Options}}{}
+\Macro{\begin{Options+}}{}
+\end{Syntax}
+
+Those environments are all the same, starting a dedicated \emph{description list}. Together with the many \Macro{\Description...}{} commands, one can list all \Keylst{Options, Args, Keys, Values} as needed. The \Key{+} form are meant to be used with the \Macro{\Description...+}{} forms, for \emph{in text} lists. The non \Key{+} form are meant to have the many \emph{'descriptors'} in the \emph{margin par}.
+\end{Envs}
+
+\subsection{Describe Commands}
+\begin{Macros}{\DescribeMacro}
+\begin{Syntax}%
+\Macro!{\DescribeMacro}<*!+>{\marg{csname}\oarg{oarglist}\marg{marglist}}
+\end{Syntax}
+\begin{Args+}
+\DescribeKey+{*} typesets the macro name in bold face.
+\DescribeKey+{!} \Arg{marglist} is treated as an expandable code, 'as is'.
+\DescribeKey+{+} the macro name is typeseted in text.
+\DescribeArg+{csname} macro name (\Macro{\detokenize}{})
+\DescribeArg+{oarglist} csv list of optional args.
+\DescribeArg+{marglist} csv list of mandatory args.
+\end{Args+}
+\end{Macros}
+
+\begin{Macros}{\DescribeArg,\DescribeKey,\DescribeValue,\DescribeOption,\DescribePackage,}
+\begin{Syntax}%
+\Macro{\DescribeArg}<*+>[type]{arg}
+\Macro{\DescribeKey}<*+>[type]{arg}
+\Macro{\DescribeValue}<*+>[type]{arg}
+\Macro{\DescribeOption}<*+>[type]{arg}
+\Macro{\DescribePackage}<*+>[type]{arg}
+\end{Syntax}
+\begin{Args+}
+\DescribeKey+{*} typesets it in bold face.
+\DescribeKey+{+} typesets in text (not in marginpar)
+\DescribeArg+{type} key/arg/... format
+\DescribeArg+{arg} key/arg/... name.
+\end{Args+}
+\end{Macros}
+
+
+\subsection{Macros Typeset}
+\begin{Macros}{\Macro}
+	\begin{Syntax}%
+		\Macro!{\Macro}{\marg{csname}\xarg{embl}\oarg{olist}\marg{mlist}}
+		\Macro!{\Macro}<!>{\marg{csname}\xarg{embl}\marg{par.desc.}}
+	\end{Syntax}
+	When describing a macro \Arg{csname} (Command Sequence, csname) the \Arg{olist} and \Arg{mlist} are comma separated lists (csv) of optional and mandatory arguments. \Arg{embl} are optional, single char,  'embellishment' tokens, like {\bfseries * ! +}. Finally, in the {\bfseries !} form, the \Arg{par.desc.} is any text representing the macro parameter list (for non regular, non usual, cases).
+
+	\begin{stcode}[st=demoB]
+		\Macro
+		{\Macro}<*!>[opt1,opt2]{arg3}
+		\Macro!
+		{\Macro}<!>{\xarg{embl}\marg{par.desc.}}
+\end{stcode}
+	\TabbedDemoCode{demoB}
+\end{Macros}
+
+\subsection{Args  Typeset}
+\begin{Macros}{\oarg,\marg,\parg,\xarg,\Arg,\Meta}
+	\begin{Syntax}%
+		\Macro{\oarg}[type]{arg}
+		\Macro{\marg}[type]{arg}
+		\Macro{\parg}[type]{arg}
+		\Macro{\xarg}[type]{arg}
+		\Macro{\Arg}[type]{arg}
+		\Macro{\Meta}{arg}
+	\end{Syntax}
+	Those are meant to typeset the diverse kinds of 'command's arguments' (mandatory, optional, parenthesis . . .). \Macro{\Meta{arg}}{} typesets \emph{arg} as \Meta{arg}.
+	\begin{Args}
+		\DescribeArg{type} defaults to \Value{Meta} (it's the csname of any valid formatting command, like Meta, textbf, etc.)
+		\DescribeArg{arg} the argument name itself.
+	\end{Args}
+	\begin{stcode}[st=demoA]
+		\oarg{fam}
+		\parg{xtra}
+		\marg[textbf]{text}
+		\xarg{x-text}
+\end{stcode}
+	\TabbedDemoCode{demoA}
+\end{Macros}
+
+\subsection{Keys  Typeset}
+\begin{Macros}{\Key,\Keylst,\KeyUse}
+	\begin{Syntax}%
+		\Macro{\Key}[pre]{key}
+		\Macro{\Keylst}[default]{keylst}
+		\Macro{\KeyUse}{key}{value}
+	\end{Syntax}
+	To typeset a \Arg{Key} or \Arg{keylst} (csv list). \Arg{pre} is just prepended to \Arg{key} whilst \Arg{default} is the default key value. \Macro{\KeyUse}{} is just a short-cut for a, possible, common construction.
+
+	\begin{stcode}[st=demoC]
+		\Key{Akey}
+
+		\Keylst[Bkey]{Akey,Bkey}
+
+		\KeyUse{keyA}{arg}
+\end{stcode}
+	\TabbedDemoCode{demoC}
+
+\end{Macros}
+
+\begin{Macros}{\Env,\Pack,\Value}
+	\begin{Syntax}%
+		\Macro{\Env}[pre]{key}
+		\Macro{\Pack}[pre]{key}
+		\Macro{\Value}[pre]{key}
+	\end{Syntax}
+	Similar to \Macro{\Key}{} above, they will typeset a \Arg{Key}. \Arg{pre} is just prepended to \Arg{key} whilst \Arg{default} is the default key value.
+
+
+\end{Macros}
+
+
+\subsection{Others}
+\begin{Macros}{\MetaFmt}
+	\begin{Syntax}%
+		\Macro{\MetaFmt}<*>[type]{}
+	\end{Syntax}
+It sets the font size, series, face as defined by \Meta{type}, \Meta{type} being one of \Keylst{Oarg,Marg,Parg,Xarg,Macro,Code,Key,KeyVal,Option,Value,Default}. The star version uses bold.
+\end{Macros}
+
+
+\begin{Macros}{\MarginNote}
+	\begin{Syntax}%
+		\Macro{\MarginNote}{text}
+	\end{Syntax}
+As the name implies, to add small margin notes.
+\end{Macros}
+
+
+\begin{Macros}{\dcAuthor,\dcDate,\dcTitle,\dcMakeTitle}
+	\begin{Syntax}%
+		\Macro{\dcAuthor}{name}
+		\Macro{\dcDate}{date}
+		\Macro{\dcTitle}{title}
+		\Macro{\dcMakeTitle}{}
+	\end{Syntax}
+Those allow one to define (as in standard article, book, report classes) the document \emph{author}, \emph{date} and \emph{date} \Macro{\dcMakeTitle}{} will write a typical title+author heading (as in the article class).
+\end{Macros}
+
+\begin{Envs}{dcAbstract}
+	\begin{Syntax}%
+		\Macro{\begin{dcAbstract}}{}  		\Macro{\end{dcAbstract}}{}
+	\end{Syntax}
+Same as above, for the abstract.
+\end{Envs}
+
+
+
+
+\end{document}
